@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaunchPad | Founder Sign Up</title>
+
+    <!-- Internal CSS -->
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%);
+            color: #1e293b;
+            margin: 0;
+            padding: 20px;
+        }
+        .container { max-width: 760px; margin: auto; }
+        header { text-align: center; }
+        h1 { color: #0284c7; margin: 0 0 4px; }
+        .tagline { color: #059669; font-weight: 600; margin-top: 0; }
+
+        .why { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 20px 0; }
+        .why div { background: #fff; border: 1px solid #bae6fd; border-radius: 12px; padding: 14px; }
+        .why h3 { margin: 0 0 4px; color: #0284c7; font-size: 1rem; }
+        .why p  { margin: 0; font-size: .9rem; color: #475569; }
+
+        .form-card { background: #fff; padding: 28px; border-radius: 16px; border: 1px solid #bae6fd;
+                     box-shadow: 0 10px 25px rgba(14,165,233,.15); max-width: 460px; margin: 0 auto; }
+        .form-card h2 { margin-top: 0; color: #059669; }
+        label { display: block; font-weight: 700; margin-top: 14px; }
+        input { width: 100%; padding: 11px; margin-top: 6px; border: 2px solid #cbd5e1; border-radius: 6px;
+                font-size: 1rem; }
+        input:focus { outline: none; border-color: #0284c7; }
+        input.invalid { border-color: #dc2626; }
+        input.valid   { border-color: #15803d; }
+        .msg { display: block; min-height: 20px; font-size: .88rem; margin-top: 3px; }
+        .msg.error { color: #dc2626; }
+        .msg.ok    { color: #15803d; }
+
+        button { width: 100%; margin-top: 18px; padding: 13px; border: none; border-radius: 8px;
+                 background: #059669; color: #fff; font-weight: bold; font-size: 1rem; cursor: pointer; }
+        button:hover { background: #047857; }
+        button.success { background: #15803d; }
+
+        .notes { text-align: center; color: #64748b; font-size: .9rem; margin-top: 20px; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <header>
+        <h1>🚀 LaunchPad Founder Sign Up</h1>
+        <p class="tagline">Create your account and join the next cohort</p>
+    </header>
+
+    <!-- Why validate -->
+    <div class="why">
+        <div><h3>Better experience</h3><p>Users see mistakes instantly, before the page reloads.</p></div>
+        <div><h3>Cleaner data</h3><p>Empty, malformed or unexpected values are caught early.</p></div>
+        <div><h3>Fewer wasted requests</h3><p>Bad submissions never leave the browser.</p></div>
+    </div>
+
+    <!-- The sample form -->
+    <div class="form-card">
+        <h2>Sign up</h2>
+        <form id="signupForm" novalidate>
+            <label for="name">Name</label>
+            <input id="name" type="text" placeholder="Name">
+            <span id="nameError" class="msg"></span>
+
+            <label for="email">Email</label>
+            <input id="email" type="text" placeholder="Email">
+            <span id="emailError" class="msg"></span>
+
+            <label for="password">Password</label>
+            <input id="password" type="password" placeholder="Password">
+            <span id="passError" class="msg"></span>
+
+            <button type="submit" id="submitBtn">Sign up</button>
+        </form>
+    </div>
+
+    <p class="notes">Client-side validation improves usability. Always validate again on the server.</p>
+</div>
+
+<script>
+    /* ---------- References to the form fields ---------- */
+    const form       = document.getElementById("signupForm");
+    const nameInput  = document.getElementById("name");
+    const emailInput = document.getElementById("email");
+    const passInput  = document.getElementById("password");
+    const submitBtn  = document.getElementById("submitBtn");
+
+    /* ---------- Reusable validator functions ---------- */
+    function isEmpty(value) {
+        return value.trim() === "";
+    }
+    function isValidEmail(email) {
+        const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return pattern.test(email.trim());
+    }
+    function isStrongPassword(pw) {
+        return pw.length >= 8;
+    }
+
+    /* ---------- Helpers that show / clear messages ---------- */
+    function showError(id, message, input) {
+        const span = document.getElementById(id);
+        span.textContent = message;
+        span.className = "msg error";
+        input.className = "invalid";
+    }
+    function showOk(id, input) {
+        const span = document.getElementById(id);
+        span.textContent = "Looks good";
+        span.className = "msg ok";
+        input.className = "valid";
+    }
+    function clearErrors() {
+        ["nameError", "emailError", "passError"].forEach(id => {
+            const span = document.getElementById(id);
+            span.textContent = "";
+            span.className = "msg";
+        });
+        [nameInput, emailInput, passInput].forEach(i => i.className = "");
+    }
+
+    /* ---------- Decisions with if / else if / else ---------- */
+    function validateName() {
+        const name = nameInput.value.trim();
+        if (name === "") {
+            showError("nameError", "Name is required", nameInput);
+            return false;
+        } else if (name.length < 3) {
+            showError("nameError", "Use at least 3 characters", nameInput);
+            return false;
+        } else {
+            showOk("nameError", nameInput);       // everything passed
+            return true;
+        }
+    }
+    function validateEmail() {
+        if (isEmpty(emailInput.value)) {
+            showError("emailError", "Email is required", emailInput);
+            return false;
+        } else if (!isValidEmail(emailInput.value)) {
+            showError("emailError", "Enter a valid email", emailInput);
+            return false;
+        } else {
+            showOk("emailError", emailInput);
+            return true;
+        }
+    }
+    function validatePassword() {
+        if (isEmpty(passInput.value)) {
+            showError("passError", "Password is required", passInput);
+            return false;
+        } else if (!isStrongPassword(passInput.value)) {
+            showError("passError", "Minimum 8 characters", passInput);
+            return false;
+        } else {
+            showOk("passError", passInput);
+            return true;
+        }
+    }
+
+    /* ---------- Combining it all ---------- */
+    function validateForm() {
+        let valid = true;                         // assume the form is valid
+        clearErrors();
+
+        if (!validateName())     { valid = false; }   // each failure flips the flag
+        if (!validateEmail())    { valid = false; }
+        if (!validatePassword()) { valid = false; }
+
+        return valid;                             // true = submit, false = block
+    }
+
+    /* ---------- Handling submit ---------- */
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();                       // stay on the page (demo has no server)
+        if (!validateForm()) {
+            submitBtn.textContent = "Sign up";
+            submitBtn.classList.remove("success");
+        } else {
+            submitBtn.textContent = "Signup successful!";
+            submitBtn.classList.add("success");
+            alert("Signup successful!");
+        }
+    });
+</script>
+</body>
+</html>
